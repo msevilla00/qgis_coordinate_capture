@@ -164,11 +164,11 @@ class CoordinateCapture:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            self.iface.addVectorToolBarIcon(action)
+            self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToVectorMenu(
-                "",
+            self.iface.addPluginToMenu(
+                self.menu,
                 action)
 
         self.actions.append(action)
@@ -178,7 +178,7 @@ class CoordinateCapture:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/coordinate_capture/coordinate_capture.png'
+        icon_path = ':/plugins/coordinate_capture/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Coordinate Capture'),
@@ -211,10 +211,10 @@ class CoordinateCapture:
         # print "** UNLOAD CoordinateCapture"
         self.mapTool.deactivate()
         for action in self.actions:
-            self.iface.removePluginVectorMenu(
-                "",
+            self.iface.removePluginMenu(
+                self.menu,
                 action)
-            self.iface.removeVectorToolBarIcon(action)
+            self.iface.removeToolBarIcon(action)
 
     # --------------------------------------------------------------------------
 
