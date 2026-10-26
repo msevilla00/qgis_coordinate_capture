@@ -22,6 +22,7 @@
  ***************************************************************************/
 """
 from qgis.PyQt.QtCore import pyqtSignal, Qt
+from qgis.PyQt.QtGui import QColor
 from qgis.gui import QgsMapTool, QgsRubberBand
 from qgis.core import QgsWkbTypes, QgsPointXY, QgsApplication
 
@@ -35,23 +36,27 @@ class CoordinateCaptureMapTool(QgsMapTool):
 
         self.mapCanvas = canvas
         self.rubberBand = QgsRubberBand(self.mapCanvas, QgsWkbTypes.PolygonGeometry)
-        self.rubberBand.setColor(Qt.red)
+        self.rubberBand.setColor(QColor(Qt.GlobalColor.red))
         self.rubberBand.setWidth(1)
         self.setCursor(QgsApplication.getThemeCursor(QgsApplication.Cursor.CrossHair))
 
     def canvasMoveEvent(self, e):
-        originalPoint = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x(), e.position().y()))
+        px = int(e.position().x())
+        py = int(e.position().y())
+        originalPoint = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px, py))
         self.mouseMoved.emit(originalPoint)
 
     def canvasPressEvent(self, e):
-        if e.button() == Qt.LeftButton:
-            originalPoint = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x(), e.position().y()))
+        if e.button() == Qt.MouseButton.LeftButton:
+            px = int(e.position().x())
+            py = int(e.position().y())
+            originalPoint = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px, py))
             self.mouseClicked.emit(originalPoint)
 
-            point1 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x() - 1, e.position().y() - 1))
-            point2 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x() + 1, e.position().y() - 1))
-            point3 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x() + 1, e.position().y() + 1))
-            point4 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(e.position().x() - 1, e.position().y() + 1))
+            point1 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px - 1, py - 1))
+            point2 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px + 1, py - 1))
+            point3 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px + 1, py + 1))
+            point4 = QgsPointXY(self.mapCanvas.getCoordinateTransform().toMapCoordinates(px - 1, py + 1))
 
             self.rubberBand.reset(QgsWkbTypes.PolygonGeometry)
 
@@ -61,7 +66,7 @@ class CoordinateCaptureMapTool(QgsMapTool):
             self.rubberBand.addPoint(point4, True)
             self.rubberBand.show()
 
-        elif e.button() == Qt.RightButton:
+        elif e.button() == Qt.MouseButton.RightButton:
             self.deactivate()
 
     def deactivate(self):
